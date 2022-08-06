@@ -9,7 +9,7 @@ const CampgroundCard = (props) => {
       <div>
         <img src={camp.image} alt="..." />
       </div>
-      <div className="flex flex-col justify-between">
+      <div className="flex flex-col justify-between ml-10">
         <h5 className="font-bold text-xl pb-4">{camp.name}</h5>
         <div>
           <p className="">{camp.description}</p>

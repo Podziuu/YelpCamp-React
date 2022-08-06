@@ -5,6 +5,7 @@ import NewCampground from './components/NewCampground';
 import EditCampground from './components/EditCampground';
 import NavBar from './components/Layout/NavBar';
 import Footer from './components/Layout/Footer';
+import PageNotFound from './components/PageNotFound';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/campgrounds/new" element={<NewCampground/>} />
         <Route path="/campgrounds/:id" element={<Campground />} />
         <Route path="/campgrounds/:id/edit" element={<EditCampground />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
       <Footer/>
     </div>
