@@ -13,6 +13,7 @@ const FormInput = (props) => {
         onChange={props.changeHandler}
         required
         min={props.min}
+        max={props.max}
         defaultValue={props.value}
       />
       <p className="text-red-600">{props.error && props.error}</p>

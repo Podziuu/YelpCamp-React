@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import cors from "cors";
 import { Campground } from "./modules/campground.js";
 import ExpressError from "./utils/ExpressError.js";
-import campgroundSchema from './schemas/campgroundSchema.js'
+import campgroundSchema from "./schemas/campgroundSchema.js";
+import reviewSchema from "./schemas/reviewSchema.js";
+import { Review } from "./modules/review.js";
 
 mongoose.connect("mongodb://localhost:27017/yelp-camp");
 
@@ -17,12 +19,22 @@ const app = express();
 
 const validateCampground = (req, res, next) => {
   const { error } = campgroundSchema.validate(req.body);
-  console.log(error);
   if (error) {
     const msg = error.details.map((el) => el.message).join(",");
     throw new ExpressError(msg, 400);
   } else {
-    next()
+    next();
+  }
+};
+
+const validateReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body);
+  console.log(error, "here");
+  if (error) {
+    const msg = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(msg, 400);
+  } else {
+    next();
   }
 };
 
@@ -57,10 +69,9 @@ app.post("/campgrounds", validateCampground, async (req, res, next) => {
 app.get("/campgrounds/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const camp = await Campground.findById(id);
+    const camp = await Campground.findById(id).populate("reviews");
     res.json(camp);
   } catch (err) {
-    console.log("were in error");
     next(err);
   }
 });
@@ -96,9 +107,35 @@ app.delete("/campgrounds/:id", async (req, res, next) => {
   }
 });
 
+app.post("/campgrounds/:id/reviews", validateReview, async (req, res, next) => {
+  try {
+    const camp = await Campground.findById(req.params.id);
+    const review = new Review(req.body);
+    camp.reviews.push(review);
+    await review.save();
+    await camp.save();
+    res.status(200).json(review);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.delete("/campgrounds/:id/reviews/:reviewId", async (req, res, next) => {
+  try {
+    console.log('hello')
+    const {id, reviewId} = req.params
+    await Campground.findByIdAndUpdate(id, {$pull: { reviews: reviewId}})
+    const review = await Review.findByIdAndDelete(reviewId)
+    res.status(200).json(review)
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use((err, req, res, next) => {
   const { statusCode = 500 } = err;
   if (!err.message) err.message = "Oh no, Something went wrong";
+  console.log(err, "in error middleware");
   res.status(statusCode).json(err);
 });
 

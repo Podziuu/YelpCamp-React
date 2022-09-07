@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const campgroundsApi = createApi({
   reducerPath: "campgroundsApi",
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000" }),
-  tagTypes: ["Campgrounds"],
+  tagTypes: ["Campgrounds", "Reviews"],
   endpoints: (builder) => ({
     getCampgrounds: builder.query({
       query: () => `/campgrounds`,
@@ -11,7 +11,7 @@ export const campgroundsApi = createApi({
     }),
     getCampgroundById: builder.query({
       query: (id) => `/campgrounds/${id}`,
-      providesTags: ["Campgrounds"],
+      providesTags: ["Campgrounds", "Reviews"],
     }),
     makeCampground: builder.mutation({
       query: (body) => ({
@@ -36,6 +36,21 @@ export const campgroundsApi = createApi({
       }),
       invalidatesTags: ["Campgrounds"],
     }),
+    makeReview: builder.mutation({
+      query: ({ id, body }) => ({
+        url: `/campgrounds/${id}/reviews`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Reviews"],
+    }),
+    deleteReview: builder.mutation({
+      query: ({ id, reviewId }) => ({
+        url: `/campgrounds/${id}/reviews/${reviewId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Reviews"],
+    }),
   }),
 });
 
@@ -45,4 +60,6 @@ export const {
   useMakeCampgroundMutation,
   useEditCampgroundMutation,
   useDeleteCampgroundMutation,
+  useMakeReviewMutation,
+  useDeleteReviewMutation,
 } = campgroundsApi;
